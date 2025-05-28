@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Italian Conjugation Formatter</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .input-section,
+      .output-section {
+        margin-bottom: 30px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #555;
+      }
+
+      textarea {
+        width: 100%;
+        height: 200px;
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        resize: vertical;
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px 0;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      .preview {
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        background-color: #fafafa;
+        margin-top: 20px;
+      }
+
+      .conjugation-display {
+        max-width: 100%;
+        margin: 20px auto 0;
+        line-height: 1.8;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .pronouns {
+        text-align: right;
+        flex: 1;
+        padding-right: 10px;
+      }
+
+      .verbs {
+        text-align: left;
+        flex: 1;
+        color: blue;
+      }
+
+      .underline {
+        text-decoration: underline;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .copy-button {
+        background-color: #2196f3;
+        margin-left: 10px;
+      }
+
+      .copy-button:hover {
+        background-color: #1976d2;
+      }
+
+      .success {
+        color: green;
+        font-weight: bold;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Italian Conjugation Formatter for Anki</h1>
+
+      <div class="input-section">
+        <label for="rawInput">Paste your conjugation text from the website:</label>
+        <textarea
+          id="rawInput"
+          placeholder="Paste text like: iosono stato/atusei stato/alui, lei, Lei, egliè stato/a..."
+        ></textarea>
+        <button onclick="formatConjugation()">Format Conjugation</button>
+      </div>
+
+      <div class="output-section">
+        <label for="formattedOutput">Formatted HTML (copy this into your Anki field):</label>
+        <textarea id="formattedOutput" readonly></textarea>
+        <button class="copy-button" onclick="copyToClipboard()">Copy to Clipboard</button>
+        <span id="copySuccess" class="success" style="display: none">Copied!</span>
+      </div>
+
+      <div class="preview">
+        <h3>Preview:</h3>
+        <div id="preview"></div>
+      </div>
+    </div>
+
+    <script>
+      function formatConjugation() {
+        const rawText = document.getElementById("rawInput").value;
+        const pronouns = ["io", "tu", "lui, lei, Lei, egli", "noi", "voi", "loro, Loro, essi"];
+        const conjugations = [];
+
+        // Split input into lines, handle tabs or multiple spaces
+        const lines = rawText
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0);
+
+        // Build a map from pronoun to verb
+        const pronounVerbMap = {};
+        lines.forEach((line) => {
+          // Split on first tab or multiple spaces
+          const match = line.match(/^([^\t]+)\t+(.+)$/) || line.match(/^([^ ]+)\s+(.+)$/);
+          if (match) {
+            pronounVerbMap[match[1].trim()] = match[2].trim();
+          }
+        });
+
+        // Fill conjugations in order
+        for (let i = 0; i < pronouns.length; i++) {
+          conjugations.push(pronounVerbMap[pronouns[i]] || "");
+        }
+
+        // Create the formatted HTML
+        let formattedHtml = '<div class="conjugation-display">\n';
+        formattedHtml += '  <div class="pronouns">\n';
+        pronouns.forEach((pronoun) => {
+          formattedHtml += `    <div>${pronoun}</div>\n`;
+        });
+        formattedHtml += "  </div>\n";
+        formattedHtml += '  <div class="verbs">\n';
+        conjugations.forEach((verb) => {
+          formattedHtml += `    <div>${verb}</div>\n`;
+        });
+        formattedHtml += "  </div>\n";
+        formattedHtml += "</div>";
+
+        // Display the formatted HTML
+        document.getElementById("formattedOutput").value = formattedHtml;
+
+        // Show preview
+        const previewHtml = `
+                <div class="underline">passato prossimo</div>
+                <div class="conjugation-display">
+                    <div class="pronouns">
+                        ${pronouns.map((p) => `<div>${p}</div>`).join("")}
+                    </div>
+                    <div class="verbs">
+                        ${conjugations.map((v) => `<div>${v}</div>`).join("")}
+                    </div>
+                </div>
+            `;
+        document.getElementById("preview").innerHTML = previewHtml;
+      }
+
+      function copyToClipboard() {
+        const output = document.getElementById("formattedOutput");
+        output.select();
+        document.execCommand("copy");
+
+        const success = document.getElementById("copySuccess");
+        success.style.display = "inline";
+        setTimeout(() => {
+          success.style.display = "none";
+        }, 2000);
+      }
+
+      // Example text for testing
+      document.getElementById("rawInput").value =
+        "iosono stato/atusei stato/alui, lei, Lei, egliè stato/anoisiamo stati/evoisiete stati/eloro, Loro, essisono stati/e";
+    </script>
+  </body>
+</html>
