@@ -1,11 +1,5 @@
 # IDE-specific files
 .vscode/
-.vs/
-*.swp
-*.swo
-*~
 .DS_Store
-*.xcodeproj/
-*.xcworkspace/
-.idea/
+
 
