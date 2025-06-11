@@ -2,10 +2,10 @@ import pdfplumber
 import re
 
 # === CONFIGURABLE PARAMETERS ===
-PDF_PATH = "2222-words.pdf"  # Change this to your PDF file path
-OUTPUT_PATH = "2222-words-anki-output.txt"
+PDF_PATH = "2000-most-frequent-words.pdf"  # Change this to your PDF file path
+OUTPUT_PATH = "2000-most-frequent-words-anki-output.txt"
 START_PAGE = 7  # Zero-based (so 9 = 10th page in most readers)
-END_PAGE = 348  # Inclusive, so 349 = last page to extract
+END_PAGE = 284  # Inclusive, so actual last page to extract
 
 # === SCRIPT STARTS HERE ===
 
@@ -34,8 +34,8 @@ def extract_entries(text):
             if i + 2 < len(lines):
                 english_sentence = lines[i + 2].strip()
             # Build the card: (Front, Back)
-            front = english
-            back = f"{italian}<br>{italian_sentence}<br>{english_sentence}"
+            front = italian
+            back = f"{english}<br>{italian_sentence}<br>{english_sentence}"
             cards.append((front, back))
             i += 3  # Skip past the example lines
         else:
